@@ -1,0 +1,63 @@
+{
+  "name": "crypto-alert-bot",
+  "version": "1.0.0",
+  "description": "Real-time cryptocurrency monitoring with arbitrage detection, whale alerts, and price notifications",
+  "author": "Your Name",
+  "license": "MIT",
+  "main": "src/bot.py",
+  "scripts": {
+    "start": "python3 src/bot.py",
+    "test": "python3 -m pytest tests/",
+    "init": "python3 src/bot.py --init"
+  },
+  "dependencies": [
+    "requests>=2.31.0"
+  ],
+  "optionalDependencies": [
+    "python-telegram-bot>=20.0",
+    "websockets>=11.0"
+  ],
+  "keywords": [
+    "crypto",
+    "bitcoin",
+    "trading",
+    "alerts",
+    "arbitrage",
+    "whale",
+    "monitoring"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/crypto-alert-bot"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/crypto-alert-bot/issues"
+  },
+  "homepage": "https://github.com/yourusername/crypto-alert-bot#readme",
+  "openclaw": {
+    "skill": true,
+    "category": "finance",
+    "commands": [
+      {
+        "name": "start-monitoring",
+        "description": "Start the crypto alert bot monitoring"
+      },
+      {
+        "name": "stop-monitoring",
+        "description": "Stop the crypto alert bot"
+      },
+      {
+        "name": "check-prices",
+        "description": "Check current prices across exchanges"
+      },
+      {
+        "name": "find-arbitrage",
+        "description": "Find arbitrage opportunities"
+      },
+      {
+        "name": "check-whales",
+        "description": "Check recent whale movements"
+      }
+    ]
+  }
+}
