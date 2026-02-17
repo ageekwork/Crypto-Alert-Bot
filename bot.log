@@ -1,0 +1,97 @@
+======================================================================
+🚀 Crypto Alert Bot - SaaS Service Starting
+======================================================================
+
+📦 Initializing components...
+✅ Loaded 0 users
+✅ Service initialized
+
+======================================================================
+🟢 Starting all services...
+======================================================================
+
+🔍 Starting monitoring loop...
+
+⏳ 2026-02-17 20:37:18 - No active users yet
+✅ Monitoring service started
+
+🤖 Starting Telegram bot command handler...
+✅ Telegram bot started
+
+======================================================================
+🚀 SaaS Service Running!
+======================================================================
+
+📊 Current Stats:
+   Total users: 0
+   By tier: {}
+   Monthly revenue: $0
+   Total alerts sent: 0
+
+🤖 Bot URL: https://t.me/Whatchmycoinsbot
+
+Press Ctrl+C to stop
+
+
+⏳ 2026-02-17 20:37:48 - No active users yet
+
+⏳ 2026-02-17 20:38:18 - No active users yet
+
+⏳ 2026-02-17 20:38:48 - No active users yet
+
+⏳ 2026-02-17 20:39:18 - No active users yet
+
+⏳ 2026-02-17 20:39:48 - No active users yet
+
+⏳ 2026-02-17 20:40:18 - No active users yet
+
+⏳ 2026-02-17 20:40:48 - No active users yet
+
+⏳ 2026-02-17 20:41:18 - No active users yet
+
+⏳ 2026-02-17 20:41:48 - No active users yet
+
+⏳ 2026-02-17 20:42:18 - No active users yet
+
+⏳ 2026-02-17 20:42:48 - No active users yet
+
+⏳ 2026-02-17 20:43:18 - No active users yet
+
+⏳ 2026-02-17 20:43:48 - No active users yet
+
+⏳ 2026-02-17 20:44:18 - No active users yet
+
+⏳ 2026-02-17 20:44:48 - No active users yet
+
+⏳ 2026-02-17 20:45:18 - No active users yet
+
+⏳ 2026-02-17 20:45:48 - No active users yet
+
+⏳ 2026-02-17 20:46:18 - No active users yet
+
+📨 Message from ageekwork: /settings
+
+⏳ 2026-02-17 20:46:48 - No active users yet
+
+📨 Message from ageekwork: /start
+✅ Created new user: a6d28792-eb5e-40bc-b288-0df781199413
+
+📨 Message from ageekwork: /prices
+
+📨 Message from ageekwork: /settings
+
+======================================================================
+🔄 Iteration 21 | 2026-02-17 20:47:18 | 1 users
+======================================================================
+
+📊 Fetching prices for 2 symbols...
+
+  👤 a6d28792... (free)
+
+======================================================================
+🔄 Iteration 22 | 2026-02-17 20:47:51 | 1 users
+======================================================================
+
+📊 Fetching prices for 2 symbols...
+
+  👤 a6d28792... (free)

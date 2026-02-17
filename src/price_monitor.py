@@ -56,6 +56,7 @@ class PriceMonitor:
         """
         self.poll_interval = poll_interval
         self.prices: Dict[str, Dict[str, PriceData]] = defaultdict(dict)
+        self.previous_prices: Dict[str, float] = {}  # For tracking price changes
         self.callbacks: List[Callable] = []
         self.running = False
         self.thread = None
