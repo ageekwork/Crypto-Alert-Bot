@@ -57,6 +57,9 @@ class CryptoAlertBot:
         # Previous prices for change detection
         self.previous_prices: Dict[str, float] = {}
         
+        # Track sent whale alerts to avoid duplicates
+        self.sent_whale_tx_hashes: set = set()
+        
         # Setup signal handlers
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
@@ -154,13 +157,20 @@ class CryptoAlertBot:
         alerts = self.whale_tracker.get_bitcoin_whale_transactions(hours=1)
         
         for alert in alerts:
+            # Skip if already sent (deduplication)
+            if hasattr(alert, 'tx_hash') and alert.tx_hash:
+                if alert.tx_hash in self.sent_whale_tx_hashes:
+                    continue
+                self.sent_whale_tx_hashes.add(alert.tx_hash)
+            
             self.alert_manager.send_whale_alert(
                 symbol=alert.symbol,
                 amount=alert.amount,
                 amount_usd=alert.amount_usd,
                 tx_type=alert.transaction_type,
                 from_addr=alert.from_address,
-                to_addr=alert.to_address
+                to_addr=alert.to_address,
+                tx_hash=getattr(alert, 'tx_hash', '')
             )
     
     def _monitoring_loop(self):

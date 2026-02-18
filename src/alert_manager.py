@@ -367,7 +367,8 @@ Profit: **{profit_pct:.2f}%** (${profit_usd:.2f})
                          amount_usd: float,
                          tx_type: str,
                          from_addr: str,
-                         to_addr: str) -> bool:
+                         to_addr: str,
+                         tx_hash: str = '') -> bool:
         """Send a whale movement alert"""
         emoji = '🐋' if amount_usd > 10000000 else '🐳' if amount_usd > 1000000 else '🐟'
         
@@ -379,6 +380,7 @@ Profit: **{profit_pct:.2f}%** (${profit_usd:.2f})
 Type: {tx_type.replace('_', ' ').title()}
 From: `{from_addr[:20]}...`
 To: `{to_addr[:20]}...`
+Tx: `{tx_hash[:16]}...`
 
 Large movements can indicate upcoming volatility.
 """
@@ -394,7 +396,8 @@ Large movements can indicate upcoming volatility.
                 'amount_usd': amount_usd,
                 'tx_type': tx_type,
                 'from': from_addr,
-                'to': to_addr
+                'to': to_addr,
+                'tx_hash': tx_hash
             },
             severity=severity
         )

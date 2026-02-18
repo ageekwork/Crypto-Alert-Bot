@@ -1,0 +1,84 @@
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@ageek.work'
+  smtp_require_tls: false
+
+# Templates for message formatting
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# The root route on which each incoming alert enters.
+route:
+  # The labels by which incoming alerts are grouped together.
+  group_by: ['alertname', 'severity']
+  
+  # When a new group of alerts is created, wait at least 'group_wait' to send the initial notification.
+  group_wait: 30s
+  
+  # When the first notification was sent, wait 'group_interval' to send a batch of new alerts that started firing for that group.
+  group_interval: 5m
+  
+  # If an alert has successfully been sent, wait 'repeat_interval' to resend them.
+  repeat_interval: 4h
+  
+  # Default receiver
+  receiver: 'default'
+  
+  # Child routes
+  routes:
+    # Critical alerts go to multiple receivers
+    - match:
+        severity: critical
+      receiver: 'critical'
+      continue: true
+    
+    # Info alerts only to Telegram
+    - match:
+        severity: info
+      receiver: 'telegram'
+
+# Receivers define how notifications are sent
+receivers:
+  - name: 'default'
+    # Configure your preferred notification method here:
+    # telegram_configs:
+    #   - bot_token: 'YOUR_BOT_TOKEN'
+    #     chat_id: 'YOUR_CHAT_ID'
+    #     message: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+    
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK'
+    #     channel: '#crypto-alerts'
+    #     title: '{{ .GroupLabels.alertname }}'
+    #     text: '{{ .CommonAnnotations.summary }}'
+    
+    # discord_configs:
+    #   - webhook_url: 'YOUR_DISCORD_WEBHOOK'
+    #     title: '{{ .GroupLabels.alertname }}'
+    #     content: '{{ .CommonAnnotations.summary }}'
+    
+    # webhook_configs:
+    #   - url: 'http://localhost:5000/webhook/alerts'
+    #     send_resolved: true
+
+  - name: 'critical'
+    # Multiple notification methods for critical alerts
+    # telegram_configs:
+    #   - bot_token: 'YOUR_BOT_TOKEN'
+    #     chat_id: 'YOUR_CHAT_ID'
+    #     message: '🚨 CRITICAL: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+    #     parse_mode: 'HTML'
+
+  - name: 'telegram'
+    # telegram_configs:
+    #   - bot_token: 'YOUR_BOT_TOKEN'
+    #     chat_id: 'YOUR_CHAT_ID'
+    #     message: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+# Inhibition rules (suppress less severe alerts when more severe ones are firing)
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'symbol']
