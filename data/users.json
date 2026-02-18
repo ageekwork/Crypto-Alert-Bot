@@ -1,0 +1,24 @@
+[
+  {
+    "user_id": "a6d28792-eb5e-40bc-b288-0df781199413",
+    "telegram_chat_id": "7083872450",
+    "telegram_username": "ageekwork",
+    "discord_webhook": null,
+    "email": null,
+    "tier": "free",
+    "subscribed_at": "2026-02-17T20:46:50.252189",
+    "expires_at": null,
+    "is_active": true,
+    "symbols": [
+      "BTC/USDT",
+      "ETH/USDT"
+    ],
+    "arbitrage_threshold": 0.5,
+    "price_change_threshold": 5.0,
+    "whale_threshold": 10000000,
+    "poll_interval": 300,
+    "alerts_sent": 0,
+    "last_activity": "2026-02-17T20:46:50.252643",
+    "created_at": "2026-02-17T20:46:50.252234"
+  }
+]
