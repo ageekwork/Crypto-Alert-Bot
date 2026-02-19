@@ -4,30 +4,43 @@
 
 **What:** Real-time crypto monitoring — arbitrage alerts, whale tracking, price notifications
 
-**Built:**
+**Stack:** Python, Docker
+
+**Deployment:** `/opt/Crypto-Alert-Bot/`
+
+---
+
+## Secrets Management
+
+**Pattern:** `/opt/secrets/crypto-alert-bot.env`
+
+On prod, the `.env` file should be moved to:
+```
+/opt/secrets/crypto-alert-bot.env
+```
+
+Then update the bot to load from that path:
+```python
+from dotenv import load_dotenv
+load_dotenv("/opt/secrets/crypto-alert-bot.env")
+```
+
+Or in Docker Compose:
+```yaml
+env_file:
+  - /opt/secrets/crypto-alert-bot.env
+```
+
+---
+
+## Built Components
+
 - Price monitor (5 exchanges: Binance, Coinbase, Kraken, Bybit, KuCoin)
 - Whale tracker (blockchain large tx monitoring)
 - Alert manager (Telegram + Discord)
-- SaaS multi-tenant version
 
-**Tech:** Python, requests only, ~50MB RAM
-
-**Monetization:**
-- Free: 3 symbols, console
-- $9/mo: 10 symbols, Telegram
-- $29/mo: Unlimited, real-time, Discord
-- $99/mo: Enterprise + API
-
-**Goal:** $1,000/mo at 35 PRO users
-
-**Next:** Create Gumroad page → launch
-
-**Pricing Research (2026-02-16):**
-- Market: $29-49/mo entry, we underpriced
-- Consider: $19/$49/$149 tiers
-- Platform: LemonSqueezy better than Gumroad (5% vs 10% fees)
-- Add: Annual billing (20% discount)
-
-→ See `memory/2026-02-16.md` for full summary
-
-**Related:** Lessons from polymarket_tracker applied here
+**Files:**
+- `src/saas_main.py` — entry point
+- `src/alert_manager.py` — handles deduplication
+- `src/price_monitor.py` — price monitoring
+- `src/whale_tracker.py` — whale alerts

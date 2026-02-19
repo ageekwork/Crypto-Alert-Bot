@@ -387,6 +387,9 @@ Large movements can indicate upcoming volatility.
         
         severity = 'critical' if amount_usd > 10000000 else 'warning'
         
+        # Use tx_hash for deduplication if available, otherwise use from+to+amount
+        dedup_key = f"whale_{tx_hash}" if tx_hash else f"whale_{from_addr}_{to_addr}_{amount}"
+        
         return self.send_alert(
             alert_type=AlertType.WHALE_MOVEMENT,
             symbol=symbol,
@@ -399,7 +402,8 @@ Large movements can indicate upcoming volatility.
                 'to': to_addr,
                 'tx_hash': tx_hash
             },
-            severity=severity
+            severity=severity,
+            dedup_key=dedup_key
         )
     
     def get_alert_stats(self) -> Dict:

@@ -12,6 +12,10 @@ import signal
 from datetime import datetime
 from typing import Dict, List
 
+# Load secrets from central location
+from dotenv import load_dotenv
+load_dotenv("/opt/secrets/crypto-alert-bot.env")
+
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
