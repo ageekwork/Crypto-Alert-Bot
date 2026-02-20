@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.user_manager import UserManager, User, SubscriptionTier
 from src.price_monitor import PriceMonitor
 from src.alert_manager import AlertManager
+from src.whale_tracker import WhaleTracker, WhaleAlertMock
 
 
 class TelegramBotHandler:
@@ -35,6 +36,9 @@ class TelegramBotHandler:
         
         # Price monitor (shared across users)
         self.price_monitor = PriceMonitor()
+        
+        # Whale tracker
+        self.whale_tracker = WhaleTracker(min_usd_value=1000000)
         
         # Session for API calls
         import requests
@@ -302,6 +306,77 @@ PRO users can customize all settings!
 
 Happy trading! 🚀
 """
+    
+    def handle_arbitrage(self, chat_id: str) -> str:
+        """Handle /arbitrage command"""
+        user = self.user_manager.get_user_by_telegram(chat_id)
+        if not user:
+            return "❌ No account found. Send /start first."
+        
+        # Fetch prices for user's symbols
+        prices = self.price_monitor.fetch_all_prices(user.symbols)
+        
+        if not prices:
+            return "❌ Could not fetch prices. Try again later."
+        
+        # Check for arbitrage opportunities
+        opportunities = []
+        for symbol, exchange_data in prices.items():
+            if len(exchange_data) < 2:
+                continue
+            
+            prices_list = [(ex, data.price) for ex, data in exchange_data.items()]
+            prices_list.sort(key=lambda x: x[1])
+            
+            lowest = prices_list[0]
+            highest = prices_list[-1]
+            
+            profit_pct = ((highest[1] - lowest[1]) / lowest[1]) * 100
+            
+            if profit_pct >= user.arbitrage_threshold:
+                opportunities.append({
+                    'symbol': symbol,
+                    'buy_exchange': lowest[0],
+                    'buy_price': lowest[1],
+                    'sell_exchange': highest[0],
+                    'sell_price': highest[1],
+                    'profit_pct': profit_pct
+                })
+        
+        if not opportunities:
+            return f"📊 No arbitrage opportunities found (threshold: {user.arbitrage_threshold}%)"
+        
+        msg = "⚡ **Arbitrage Opportunities**\n\n"
+        for opp in opportunities[:5]:
+            msg += f"🎯 **{opp['symbol']}**\n"
+            msg += f"   Buy: {opp['buy_exchange'].upper()} @ ${opp['buy_price']:,.2f}\n"
+            msg += f"   Sell: {opp['sell_exchange'].upper()} @ ${opp['sell_price']:,.2f}\n"
+            msg += f"   Profit: **{opp['profit_pct']:.2f}%**\n\n"
+        
+        return msg
+    
+    def handle_whales(self, chat_id: str) -> str:
+        """Handle /whales command"""
+        user = self.user_manager.get_user_by_telegram(chat_id)
+        if not user:
+            return "❌ No account found. Send /start first."
+        
+        # Get whale alerts
+        alerts = self.whale_tracker.get_bitcoin_whale_transactions(hours=1)
+        
+        if not alerts:
+            return "🐋 No whale movements detected in the last hour."
+        
+        msg = "🐋 **Recent Whale Movements**\n\n"
+        
+        for alert in alerts[:5]:
+            emoji = '🐋' if alert.amount_usd > 10000000 else '🐳' if alert.amount_usd > 1000000 else '🐟'
+            msg += f"{emoji} **{alert.amount:,.2f} {alert.symbol}** (${alert.amount_usd:,.0f})\n"
+            msg += f"   Type: {alert.transaction_type.replace('_', ' ').title()}\n"
+            msg += f"   From: `{alert.from_address[:15]}...`\n"
+            msg += f"   To: `{alert.to_address[:15]}...`\n\n"
+        
+        return msg
     
     def _get_plan_price(self, tier: SubscriptionTier) -> str:
         """Get price string for tier"""
