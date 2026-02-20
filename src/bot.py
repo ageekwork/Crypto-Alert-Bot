@@ -38,7 +38,7 @@ class CryptoAlertBot:
             poll_interval=self.config.get('poll_interval', 30)
         )
         
-        self.whale_tracker = WhaleAlertMock(
+        self.whale_tracker = WhaleTracker(
             min_usd_value=self.config.get('whale_threshold', 1000000)
         )
         
@@ -59,6 +59,7 @@ class CryptoAlertBot:
         
         # Track sent whale alerts to avoid duplicates
         self.sent_whale_tx_hashes: set = set()
+        self._load_whale_hashes()
         
         # Setup signal handlers
         signal.signal(signal.SIGINT, self._signal_handler)
@@ -106,6 +107,25 @@ class CryptoAlertBot:
                     config[config_key] = value
         
         return config
+    
+    def _get_whale_hashes_file(self) -> str:
+        return os.path.join(os.path.dirname(__file__), '..', 'data', 'whale_hashes.json')
+    
+    def _load_whale_hashes(self):
+        filepath = self._get_whale_hashes_file()
+        if os.path.exists(filepath):
+            try:
+                with open(filepath, 'r') as f:
+                    data = json.load(f)
+                    self.sent_whale_tx_hashes = set(data.get('hashes', []))
+            except: pass
+    
+    def _save_whale_hashes(self):
+        filepath = self._get_whale_hashes_file()
+        try:
+            with open(filepath, 'w') as f:
+                json.dump({'hashes': list(self.sent_whale_tx_hashes)}, f)
+        except: pass
     
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals gracefully"""
@@ -162,6 +182,7 @@ class CryptoAlertBot:
                 if alert.tx_hash in self.sent_whale_tx_hashes:
                     continue
                 self.sent_whale_tx_hashes.add(alert.tx_hash)
+                self._save_whale_hashes()
             
             self.alert_manager.send_whale_alert(
                 symbol=alert.symbol,
