@@ -1,11 +1,11 @@
 [Unit]
-Description=Crypto Alert Bot (Dev)
+Description=Crypto Alert Bot (Production)
 After=network.target
 
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/ageek-work/crypto-alert-bot
+WorkingDirectory=/opt/crypto-alert-bot
 ExecStart=/usr/bin/python3 src/saas_main.py
 Restart=always
 RestartSec=10
