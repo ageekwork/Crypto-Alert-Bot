@@ -305,6 +305,12 @@ class SaaSService:
         elif text == '/help':
             return self.telegram.handle_help(chat_id)
         
+        elif text == '/arbitrage':
+            return self.telegram.handle_arbitrage(chat_id)
+        
+        elif text == '/whales':
+            return self.telegram.handle_whales(chat_id)
+        
         elif text.startswith('/'):
             return "❓ Unknown command. Send /help for available commands."
         
