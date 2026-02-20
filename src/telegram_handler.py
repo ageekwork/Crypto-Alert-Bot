@@ -9,7 +9,7 @@ import sys
 import json
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Optional
 
 # Add parent to path
@@ -19,6 +19,24 @@ from src.user_manager import UserManager, User, SubscriptionTier
 from src.price_monitor import PriceMonitor
 from src.alert_manager import AlertManager
 from src.whale_tracker import WhaleTracker, WhaleAlertMock
+
+
+class Cache:
+    """Simple in-memory cache with TTL"""
+    def __init__(self, ttl_seconds: int = 300):
+        self.ttl_seconds = ttl_seconds
+        self._cache: Dict[str, tuple] = {}
+    
+    def get(self, key: str) -> Optional[any]:
+        if key in self._cache:
+            data, timestamp = self._cache[key]
+            if datetime.now() - timestamp < timedelta(seconds=self.ttl_seconds):
+                return data
+            del self._cache[key]
+        return None
+    
+    def set(self, key: str, data: any):
+        self._cache[key] = (data, datetime.now())
 
 
 class TelegramBotHandler:
@@ -39,6 +57,9 @@ class TelegramBotHandler:
         
         # Whale tracker
         self.whale_tracker = WhaleTracker(min_usd_value=1000000)
+        
+        # Cache for expensive API calls (5 min TTL)
+        self.cache = Cache(ttl_seconds=300)
         
         # Session for API calls
         import requests
@@ -313,35 +334,44 @@ Happy trading! 🚀
         if not user:
             return "❌ No account found. Send /start first."
         
-        # Fetch prices for user's symbols
-        prices = self.price_monitor.fetch_all_prices(user.symbols)
-        
-        if not prices:
-            return "❌ Could not fetch prices. Try again later."
-        
-        # Check for arbitrage opportunities
-        opportunities = []
-        for symbol, exchange_data in prices.items():
-            if len(exchange_data) < 2:
-                continue
+        # Check cache first
+        cache_key = f"arbitrage_{','.join(user.symbols)}"
+        cached = self.cache.get(cache_key)
+        if cached:
+            opportunities = cached
+        else:
+            # Fetch prices for user's symbols
+            prices = self.price_monitor.fetch_all_prices(user.symbols)
             
-            prices_list = [(ex, data.price) for ex, data in exchange_data.items()]
-            prices_list.sort(key=lambda x: x[1])
+            if not prices:
+                return "❌ Could not fetch prices. Try again later."
             
-            lowest = prices_list[0]
-            highest = prices_list[-1]
+            # Check for arbitrage opportunities
+            opportunities = []
+            for symbol, exchange_data in prices.items():
+                if len(exchange_data) < 2:
+                    continue
+                
+                prices_list = [(ex, data.price) for ex, data in exchange_data.items()]
+                prices_list.sort(key=lambda x: x[1])
+                
+                lowest = prices_list[0]
+                highest = prices_list[-1]
+                
+                profit_pct = ((highest[1] - lowest[1]) / lowest[1]) * 100
+                
+                if profit_pct >= user.arbitrage_threshold:
+                    opportunities.append({
+                        'symbol': symbol,
+                        'buy_exchange': lowest[0],
+                        'buy_price': lowest[1],
+                        'sell_exchange': highest[0],
+                        'sell_price': highest[1],
+                        'profit_pct': profit_pct
+                    })
             
-            profit_pct = ((highest[1] - lowest[1]) / lowest[1]) * 100
-            
-            if profit_pct >= user.arbitrage_threshold:
-                opportunities.append({
-                    'symbol': symbol,
-                    'buy_exchange': lowest[0],
-                    'buy_price': lowest[1],
-                    'sell_exchange': highest[0],
-                    'sell_price': highest[1],
-                    'profit_pct': profit_pct
-                })
+            # Cache for 5 minutes
+            self.cache.set(cache_key, opportunities)
         
         if not opportunities:
             return f"📊 No arbitrage opportunities found (threshold: {user.arbitrage_threshold}%)"
@@ -361,8 +391,15 @@ Happy trading! 🚀
         if not user:
             return "❌ No account found. Send /start first."
         
-        # Get whale alerts
-        alerts = self.whale_tracker.get_bitcoin_whale_transactions(hours=1)
+        # Check cache first
+        cached = self.cache.get("whales")
+        if cached:
+            alerts = cached
+        else:
+            # Get whale alerts
+            alerts = self.whale_tracker.get_bitcoin_whale_transactions(hours=1)
+            # Cache for 5 minutes
+            self.cache.set("whales", alerts)
         
         if not alerts:
             return "🐋 No whale movements detected in the last hour."
