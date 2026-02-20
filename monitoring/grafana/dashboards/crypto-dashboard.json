@@ -1,0 +1,121 @@
+{
+  "dashboard": {
+    "title": "Crypto Price Monitor",
+    "tags": ["crypto", "prices"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Current Prices (USD)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "crypto_price_usd",
+            "legendFormat": "{{symbol}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "decimals": 2
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "24h Change %",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "crypto_change_24h_percent",
+            "legendFormat": "{{symbol}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": -50,
+            "max": 50,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": -50},
+                {"color": "yellow", "value": -10},
+                {"color": "green", "value": 10}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Price History",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "crypto_price_usd",
+            "legendFormat": "{{symbol}} - {{name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {"h": 10, "w": 24, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Market Cap",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "crypto_market_cap_usd",
+            "legendFormat": "{{symbol}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "decimals": 0
+          }
+        },
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 18}
+      },
+      {
+        "id": 5,
+        "title": "24h Volume",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "crypto_volume_24h_usd",
+            "legendFormat": "{{symbol}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "decimals": 0
+          }
+        },
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 18}
+      },
+      {
+        "id": 6,
+        "title": "Active Alerts",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "ALERTS{alertstate=\"firing\"}",
+            "format": "table"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24}
+      }
+    ]
+  }
+}

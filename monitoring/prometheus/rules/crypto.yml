@@ -1,0 +1,65 @@
+groups:
+  - name: crypto_alerts
+    rules:
+      # Price drop alerts
+      - alert: CryptoPriceDrop24h
+        expr: crypto_change_24h_percent < -10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.symbol }} dropped {{ $value }}% in 24h"
+          description: "{{ $labels.name }} ({{ $labels.symbol }}) has dropped {{ $value }}% in the last 24 hours"
+
+      - alert: CryptoPriceDropSevere
+        expr: crypto_change_24h_percent < -20
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.symbol }} crashed {{ $value }}% in 24h"
+          description: "{{ $labels.name }} ({{ $labels.symbol }}) has crashed {{ $value }}% in the last 24 hours!"
+
+      # Price pump alerts (for selling opportunities)
+      - alert: CryptoPricePump
+        expr: crypto_change_24h_percent > 15
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.symbol }} pumped {{ $value }}% in 24h"
+          description: "{{ $labels.name }} ({{ $labels.symbol }}) is up {{ $value }}% in the last 24 hours"
+
+      # Volume spike alerts
+      - alert: HighVolumeAlert
+        expr: (
+          crypto_volume_24h_usd / avg_over_time(crypto_volume_24h_usd[7d])
+        ) > 3
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.symbol }} volume spike detected"
+          description: "{{ $labels.symbol }} volume is {{ $value }}x higher than 7-day average"
+
+      # ATH proximity (for profit taking)
+      - alert: NearAllTimeHigh
+        expr: (
+          crypto_price_usd / crypto_ath_usd
+        ) > 0.95
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.symbol }} near all-time high"
+          description: "{{ $labels.symbol }} is at {{ $value | humanizePercentage }} of its ATH"
+
+      # Exporter down
+      - alert: CryptoExporterDown
+        expr: up{job="crypto-exporter"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Crypto exporter is down"
+          description: "The crypto price exporter has been down for more than 2 minutes"
